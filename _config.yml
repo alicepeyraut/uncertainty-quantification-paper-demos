@@ -1,9 +1,9 @@
 ############################################################## Book settings ###
 
-title: Welcome to [Genet, 2023, Comptes Rendus Mécanique]'s demos!
-author: Martin Genet
+title: Welcome to [Peyrau & Genet, 2024]'s demos!
+author: Alice Peyraut, Martin Genet
 logo: logo.png
-copyright: "2023"
+copyright: "2024"
 only_build_toc_files: true
 
 ######################################################### Execution settings ###
