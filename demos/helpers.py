@@ -15,12 +15,10 @@ def write_porosity(porosity_field = [], n_cells = 0, filepath = "./"):
 
 
 def checking_if_processes_converged(processes):
-    over = True
     for process in processes:
         if process.poll() is None:  # If any process is still running
-            over = False  # Not all processes are done
-            break 
-    return(over)
+            return False
+    return True
 
 
 def checking_if_converged(params_opt = {}, nb_processes_converged = 0, tol = 1e-3):

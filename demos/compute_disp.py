@@ -90,24 +90,21 @@ def compute_disp(position = None, parameters_to_identify = {}, noise = None, dir
             "c1":c1,
             "c2":c2,
             "kappa":1e2,
-            "eta":1e-5,
-            "rho_solid":1.06e-6}
+            "eta":1e-5}
         params_fibrose_1 = {
             "alpha": alpha_fibrose_1,
             "gamma":gamma,
             "c1":c1,
             "c2":c2,
             "kappa":1e2,
-            "eta":1e-5,
-            "rho_solid":1.06e-6}
+            "eta":1e-5}
         params_fibrose_2 = {
             "alpha": alpha_fibrose_2,
             "gamma":gamma,
             "c1":c1,
             "c2":c2,
             "kappa":1e2,
-            "eta":1e-5,
-            "rho_solid":1.06e-6}
+            "eta":1e-5}
         mat_params_healthy = {"scaling":"linear", "parameters": params_healthy}
         mat_params_fibrose_1 = {"scaling":"linear", "parameters": params_fibrose_1}
         mat_params_fibrose_2 = {"scaling":"linear", "parameters": params_fibrose_2}
@@ -119,32 +116,28 @@ def compute_disp(position = None, parameters_to_identify = {}, noise = None, dir
             "c1":c1,
             "c2":c2,
             "kappa":1e2,
-            "eta":1e-5,
-            "rho_solid":1.06e-6}
+            "eta":1e-5}
         params_fibrose_1 = {
             "alpha": alpha_fibrose_1,
             "gamma":gamma,
             "c1":c1,
             "c2":c2,
             "kappa":1e2,
-            "eta":1e-5,
-            "rho_solid":1.06e-6}
+            "eta":1e-5}
         params_fibrose_2 = {
             "alpha": alpha_fibrose_2,
             "gamma":gamma,
             "c1":c1,
             "c2":c2,
             "kappa":1e2,
-            "eta":1e-5,
-            "rho_solid":1.06e-6}
+            "eta":1e-5}
         params_fibrose_3 = {
             "alpha": alpha_fibrose_3,
             "gamma":gamma,
             "c1":c1,
             "c2":c2,
             "kappa":1e2,
-            "eta":1e-5,
-            "rho_solid":1.06e-6}
+            "eta":1e-5}
         mat_params_healthy = {"scaling":"linear", "parameters": params_healthy}
         mat_params_fibrose_1 = {"scaling":"linear", "parameters": params_fibrose_1}
         mat_params_fibrose_2 = {"scaling":"linear", "parameters": params_fibrose_2}
