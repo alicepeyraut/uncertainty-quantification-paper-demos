@@ -50,7 +50,4 @@ dependencies:
 
   # tracking stuff
     - dolfin_mech==2023.06.06
-    - dolfin_warp==2023.06.06
 
-variables:
-    CPATH: /srv/conda/envs/notebook/include/vtk-9.0

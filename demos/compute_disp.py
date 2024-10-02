@@ -90,21 +90,24 @@ def compute_disp(position = None, parameters_to_identify = {}, noise = None, dir
             "c1":c1,
             "c2":c2,
             "kappa":1e2,
-            "eta":1e-5}
+            "eta":1e-5,
+            "rho_solid":1.06e-6}
         params_fibrose_1 = {
             "alpha": alpha_fibrose_1,
             "gamma":gamma,
             "c1":c1,
             "c2":c2,
             "kappa":1e2,
-            "eta":1e-5}
+            "eta":1e-5,
+            "rho_solid":1.06e-6}
         params_fibrose_2 = {
             "alpha": alpha_fibrose_2,
             "gamma":gamma,
             "c1":c1,
             "c2":c2,
             "kappa":1e2,
-            "eta":1e-5}
+            "eta":1e-5,
+            "rho_solid":1.06e-6}
         mat_params_healthy = {"scaling":"linear", "parameters": params_healthy}
         mat_params_fibrose_1 = {"scaling":"linear", "parameters": params_fibrose_1}
         mat_params_fibrose_2 = {"scaling":"linear", "parameters": params_fibrose_2}
@@ -116,28 +119,32 @@ def compute_disp(position = None, parameters_to_identify = {}, noise = None, dir
             "c1":c1,
             "c2":c2,
             "kappa":1e2,
-            "eta":1e-5}
+            "eta":1e-5,
+            "rho_solid":1.06e-6}
         params_fibrose_1 = {
             "alpha": alpha_fibrose_1,
             "gamma":gamma,
             "c1":c1,
             "c2":c2,
             "kappa":1e2,
-            "eta":1e-5}
+            "eta":1e-5,
+            "rho_solid":1.06e-6}
         params_fibrose_2 = {
             "alpha": alpha_fibrose_2,
             "gamma":gamma,
             "c1":c1,
             "c2":c2,
             "kappa":1e2,
-            "eta":1e-5}
+            "eta":1e-5,
+            "rho_solid":1.06e-6}
         params_fibrose_3 = {
             "alpha": alpha_fibrose_3,
             "gamma":gamma,
             "c1":c1,
             "c2":c2,
             "kappa":1e2,
-            "eta":1e-5}
+            "eta":1e-5,
+            "rho_solid":1.06e-6}
         mat_params_healthy = {"scaling":"linear", "parameters": params_healthy}
         mat_params_fibrose_1 = {"scaling":"linear", "parameters": params_fibrose_1}
         mat_params_fibrose_2 = {"scaling":"linear", "parameters": params_fibrose_2}
@@ -184,42 +191,47 @@ def compute_disp(position = None, parameters_to_identify = {}, noise = None, dir
         "type":"p_boundary_condition", "f":coef*9.81e3, "P0" : float(pi)}
 
     ####################################################################### computing displacement field from end-exhalation to end-inhalation ###
-    U_unloading, phis_unloading, dV_unloading = dmech.run_RivlinCube_PoroHyperelasticity( ### unloading problem
-        dim=3,
-        inverse=1,
-        cube_params=cube_params,
-        porosity_params=porosity_params_unloading,
-        get_results = 1,
-        mat_params=mat_params,
-        step_params={"dt_min":1e-4},
-        load_params=load_params_inverse,
-        res_basename=new_directory+"/unloading",
-        inertia_params={"applied":True},
-        plot_curves=0,
-        verbose=1)
+    try:
+        U_unloading, phis_unloading, dV_unloading = dmech.run_RivlinCube_PoroHyperelasticity( ### unloading problem
+            dim=3,
+            inverse=1,
+            cube_params=cube_params,
+            porosity_params=porosity_params_unloading,
+            get_results = 1,
+            mat_params=mat_params,
+            step_params={"dt_min":1e-4},
+            load_params=load_params_inverse,
+            res_basename=new_directory+"/unloading",
+            inertia_params={"applied":True},
+            plot_curves=0,
+            verbose=1)
 
-    U_loading, phis_loading, dV_loading = dmech.run_RivlinCube_PoroHyperelasticity( ### loading problem
-        dim=3,
-        inverse=0,
-        porosity_params= {"type": "function_xml_from_array", "val": phis_unloading},
-        cube_params=cube_params,
-        mat_params=mat_params,
-        step_params={"dt_ini":0.125, "dt_min":1e-4},
-        load_params=load_params_direct,
-        res_basename = new_directory+"/loading",
-        move_params = {"move":True, "U": U_unloading},
-        inertia_params={"applied":True},
-        get_results = 1,
-        plot_curves=0,
-        verbose=1)
+        U_loading, phis_loading, dV_loading = dmech.run_RivlinCube_PoroHyperelasticity( ### loading problem
+            dim=3,
+            inverse=0,
+            porosity_params= {"type": "function_xml_from_array", "val": phis_unloading},
+            cube_params=cube_params,
+            mat_params=mat_params,
+            step_params={"dt_ini":0.125, "dt_min":1e-4},
+            load_params=load_params_direct,
+            res_basename = new_directory+"/loading",
+            move_params = {"move":True, "U": U_unloading},
+            inertia_params={"applied":True},
+            get_results = 1,
+            plot_curves=0,
+            verbose=1)
 
-    U_exhal_to_inhal = U_unloading.copy(deepcopy =True)
-    U_exhal_to_inhal.vector()[:] += U_loading.vector().get_local()[:]
+        U_exhal_to_inhal = U_unloading.copy(deepcopy =True)
+        U_exhal_to_inhal.vector()[:] += U_loading.vector().get_local()[:]
 
-
-    if noise != '':
+        # print(noise, new_directory )
+        if noise != '':
+            shutil.rmtree(new_directory)
+        return(U_exhal_to_inhal, dV_unloading)
+    except:
         shutil.rmtree(new_directory)
-    return(U_exhal_to_inhal, dV_unloading)
+        return
+
 
 
 if (__name__ == "__main__"):

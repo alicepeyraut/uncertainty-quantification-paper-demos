@@ -1,6 +1,6 @@
 ############################################################## Book settings ###
 
-title: Welcome to [Peyrau & Genet, 2024]'s demos!
+title: Welcome to [Peyraut & Genet, 2024]'s demos!
 author: Alice Peyraut, Martin Genet
 logo: logo_uncertainty-quantification.png
 copyright: "2024"
@@ -40,7 +40,7 @@ latex:
 ############################################################# Launch settings ###
 
 repository:
-  url: https://github.com/mgenet/N-DEG-paper-demos # MG20230527: Somehow only GitHub works, cf. https://github.com/orgs/executablebooks/discussions/1018
+  # url: https://github.com/mgenet/N-DEG-paper-demos # MG20230527: Somehow only GitHub works, cf. https://github.com/orgs/executablebooks/discussions/1018
   path_to_book: .
   branch: master
 

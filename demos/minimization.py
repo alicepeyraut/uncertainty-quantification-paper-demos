@@ -59,7 +59,7 @@ def minimization(position = 'Supine', noise_level = 0.1, parameters_to_identify 
         noise_supine.vector()[:] = numpy.random.normal(loc=0.0, scale=scale_supine, size=Umeas_supine.vector().get_local().shape) ### creating random noise with null mean and standard deviation scale_supine, of the size of U_meas_supine
         noise_norm_supine = (dolfin.assemble(dolfin.inner(noise_supine,noise_supine)*dVmeas_supine)/2/V_supine)**(1/2)
         Umeas_supine.vector()[:] += noise_supine.vector()[:] ### adding noise to displacement field
-        Umeas_supine_noise_norm =(dolfin.assemble(dolfin.inner(Umeas_supine, Umeas_supine)*dVmeas_supine)/2/V_supine) ### norm of the noisy displacement field
+        Umeas_supine_noise_norm =(dolfin.assemble(dolfin.inner(Umeas_supine, Umeas_supine)*dVmeas_supine)/2/V_supine)**(1/2) ### norm of the noisy displacement field
         ###### in prone position
         scale_prone = noise_level * Umeas_norm_prone
         noise_prone = Umeas_prone.copy(deepcopy=True)
@@ -68,7 +68,7 @@ def minimization(position = 'Supine', noise_level = 0.1, parameters_to_identify 
         Umeas_prone.vector()[:] += noise_prone.vector()[:] ### adding noise to displacement field
         Umeas_prone_noise_norm = (dolfin.assemble(dolfin.inner(Umeas_prone, Umeas_prone) * dVmeas_prone)/2/V_prone)**(1/2)
         ### starting minimization
-        sol = scipy.optimize.minimize(L_prone_and_supine, initialization, args=(Umeas_supine, Umeas_prone, dVmeas_supine, dVmeas_prone, V_supine, V_prone, noise_norm_supine, Umeas_supine_noise_norm, noise_norm_prone, Umeas_prone_noise_norm, noise_level, iteration, parameters_to_identify, dirpath), options={'maxiter': 150, 'maxfev': 150, 'xatol': 1e-2}, method="Nelder-Mead")
+        sol = scipy.optimize.minimize(L_prone_and_supine, initialization, args=(Umeas_supine, Umeas_prone, noise_norm_supine, Umeas_supine_noise_norm, noise_norm_prone, Umeas_prone_noise_norm, noise_level, iteration, parameters_to_identify, dirpath, parameter_biased, V_prone, V_supine), options={'maxiter': 150, 'maxfev': 150, 'xatol': 5e-1}, method="Nelder-Mead")
     else:
         ### mesh information
         mesh = dolfin.Mesh()
@@ -87,15 +87,16 @@ def minimization(position = 'Supine', noise_level = 0.1, parameters_to_identify 
              family="Lagrange",
              degree=1) ### function space
         Umeas = dolfin.Function(U_mes_fs, res_basename_meas+"/displacement_exhal_to_inhal.xml") ### displacement field from end-exhalation to unloaded configuration
-        Umeas_norm = (dolfin.assemble(dolfin.inner(Umeas, Umeas)*dVmeas)/2/V0)
+        Umeas_norm = (dolfin.assemble(dolfin.inner(Umeas, Umeas)*dVmeas)/2/V0)**(1/2)
         ### scale 
         scale = noise_level * Umeas_norm
         noise = Umeas.copy(deepcopy=True)
         noise.vector()[:] = numpy.random.normal(loc = 0.0, scale = scale, size = Umeas.vector().get_local().shape)
-        noise_norm = (dolfin.assemble(dolfin.inner(noise,noise)*dVmeas)/2/V0)
+        noise_norm = (dolfin.assemble(dolfin.inner(noise,noise)*dVmeas)/2/V0)**(1/2)
         Umeas.vector()[:] += noise.vector()[:] ### adding noise to the displacement field
-        Umeas_noise_norm = (dolfin.assemble(dolfin.inner(Umeas, Umeas) * dVmeas)/2/V0)
-        sol = scipy.optimize.minimize(L_prone_or_supine, initialization, args=(Umeas, V0, noise_norm, Umeas_noise_norm, noise_level, iteration, position, parameters_to_identify, dirpath, parameter_biased), options={'maxiter': 150, 'maxfev': 150,'xatol': 1e-2}, method="Nelder-Mead")
+        Umeas_noise_norm = (dolfin.assemble(dolfin.inner(Umeas, Umeas) * dVmeas)/2/V0)**(1/2)
+        # print("Umeas_noise_norm", Umeas_noise_norm)
+        sol = scipy.optimize.minimize(L_prone_or_supine, initialization, args=(Umeas, V0, noise_norm, Umeas_noise_norm, noise_level, iteration, position, parameters_to_identify, dirpath, parameter_biased), options={'maxiter': 150, 'maxfev': 150,'xatol': 5e-1}, method="Nelder-Mead")
     if sol.success == True:
         for param in initialization:
             print(param)
@@ -103,6 +104,7 @@ def minimization(position = 'Supine', noise_level = 0.1, parameters_to_identify 
             print(sol.x[k])
         print(sol.fun)
     return
+
 
 
 def L_prone_or_supine(x, Umeas, V0, noise_norm, Umeas_noise_norm, noise_level, iteration, position, parameters_to_identify, dirpath, parameter_biased):
@@ -150,6 +152,7 @@ def L_prone_or_supine(x, Umeas, V0, noise_norm, Umeas_noise_norm, noise_level, i
             normalization = noise_norm
         else:
             normalization = Umeas_noise_norm
+        # print("normalization", normalization)
         U, dV = compute_disp.compute_disp(position = position, parameters_to_identify = parameters_to_identify_updated, noise = noise_level, dirpath = dirpath, iteration = iteration) ### compute the displacement field from end-exhalation to end-inhalation with the parameter values of the current iteration
         U_err = U.copy(deepcopy = True)
         U_err.vector()[:] -= Umeas.vector()[:]
@@ -160,8 +163,7 @@ def L_prone_or_supine(x, Umeas, V0, noise_norm, Umeas_noise_norm, noise_level, i
 
 
 
-
-def L_prone_and_supine(x, Umeas_supine, Umeas_prone, V_supine, V_prone, noise_norm_supine, Umeas_supine_noise_norm, noise_norm_prone, Umeas_prone_noise_norm, noise_level, iteration, parameters_to_identify, dirpath, parameter_biased):
+def L_prone_and_supine(x, Umeas_supine, Umeas_prone, noise_norm_supine, Umeas_supine_noise_norm, noise_norm_prone, Umeas_prone_noise_norm, noise_level, iteration, parameters_to_identify, dirpath, parameter_biased, V_prone, V_supine):
     j = 0
     parameters_to_identify_updated = {}
     for key, value in parameters_to_identify.items(): ### changing the value of the parameters to identify at each iteration
