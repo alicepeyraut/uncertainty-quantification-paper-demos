@@ -25,7 +25,8 @@ dependencies:
   - subprocess
   - time
   - warnings
-  
+  - fire
+
 # jupyter
   - ipywidgets=7.7
   - itkwidgets=0.32.6
