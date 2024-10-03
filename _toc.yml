@@ -4,5 +4,5 @@
 format: jb-book
 root: index
 chapters:
-- file: demos/Figures_measurement_uncertainty_quantification
-- file: demos/Figures_model_uncertainty_quantification
+- file: demos/Figures_4_to_11_measurement_errors
+- file: demos/Figures_6-7-8_model_errors
