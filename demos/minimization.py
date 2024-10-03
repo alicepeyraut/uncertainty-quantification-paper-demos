@@ -24,7 +24,7 @@ def minimization(position = 'Supine', noise_level = 0.1, parameters_to_identify 
         ######### mesh information
         position = 'Supine'
         mesh = dolfin.Mesh()
-        dolfin.XDMFFile(dirpath + "/supine/Zygotsupine.xdmf").read(mesh) ### retrieving the mesh already written
+        dolfin.XDMFFile(dirpath + "/supine/Zygotesupine.xdmf").read(mesh) ### retrieving the mesh already written
         dVmeas_supine = dolfin.Measure("dx", domain=mesh) ### defining measures on the mesh
         V_supine = dolfin.assemble(dolfin.Constant(1) * dVmeas_supine) ### volume mesh in supine
         ### displacement information
@@ -39,7 +39,7 @@ def minimization(position = 'Supine', noise_level = 0.1, parameters_to_identify 
         ######### mesh information
         position = 'Prone'
         mesh = dolfin.Mesh()
-        dolfin.XDMFFile(dirpath + "/prone/Zygotprone.xdmf").read(mesh) ### retrieving the mesh already written
+        dolfin.XDMFFile(dirpath + "/prone/Zygoteprone.xdmf").read(mesh) ### retrieving the mesh already written
         dVmeas_prone = dolfin.Measure("dx", domain=mesh)
         V_prone = dolfin.assemble(dolfin.Constant(1) * dVmeas_prone)
         Umeas_norm_supine = (dolfin.assemble(dolfin.inner(Umeas_supine, Umeas_supine)*dVmeas_supine)/2/V_supine)**(1/2)
@@ -74,9 +74,9 @@ def minimization(position = 'Supine', noise_level = 0.1, parameters_to_identify 
         mesh = dolfin.Mesh()
         new_directory = "ref" + str(position)
         if position == "Supine":
-            name_mesh=dirpath+"/supine/Zygotsupine.xdmf"
+            name_mesh=dirpath+"/supine/Zygotesupine.xdmf"
         else:
-            name_mesh=dirpath+"/prone/Zygotprone.xdmf" ### retrieving the right displacement field whether the patient is in prone or in supine position
+            name_mesh=dirpath+"/prone/Zygoteprone.xdmf" ### retrieving the right displacement field whether the patient is in prone or in supine position
         res_basename_meas = os.path.join(dirpath, new_directory)
         dolfin.XDMFFile(name_mesh).read(mesh)
         dVmeas = dolfin.Measure("dx", domain=mesh)
