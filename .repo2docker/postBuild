@@ -23,6 +23,8 @@ echo "alias la=\"ls -lah\"" >> ~/.bash_aliases
 git clone https://github.com/aschn/gnuplot-colorbrewer.git
 echo "set loadpath \"/home/jovyan/gnuplot-colorbrewer/diverging:/home/jovyan/gnuplot-colorbrewer/qualitative:/home/jovyan/gnuplot-colorbrewer/sequential\"" > .gnuplot
 
+pip install fire
+
 rm ~/apt.txt
 rm ~/environment.yml
 rm ~/postBuild
