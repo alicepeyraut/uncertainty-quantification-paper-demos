@@ -35,6 +35,7 @@ def minimization(position = 'Supine', noise_level = 0.1, parameters_to_identify 
              family="Lagrange",
              degree=1) ### creating function space to retrieve displacement fields
         Umeas_supine = dolfin.Function(U_mes_fs, res_basename_meas+"/displacement_exhal_to_inhal.xml") ### displacement field unloading problem
+        Umeas_norm_supine = (dolfin.assemble(dolfin.inner(Umeas_supine, Umeas_supine) * dVmeas_supine)/2/V_supine)**(1/2)
         ### getting prone information
         ######### mesh information
         position = 'Prone'
@@ -42,7 +43,6 @@ def minimization(position = 'Supine', noise_level = 0.1, parameters_to_identify 
         dolfin.XDMFFile(dirpath + "/prone/Zygoteprone.xdmf").read(mesh) ### retrieving the mesh already written
         dVmeas_prone = dolfin.Measure("dx", domain=mesh)
         V_prone = dolfin.assemble(dolfin.Constant(1) * dVmeas_prone)
-        Umeas_norm_supine = (dolfin.assemble(dolfin.inner(Umeas_supine, Umeas_supine)*dVmeas_supine)/2/V_supine)**(1/2)
         ### displacement information
         new_directory = "ref" + str(position)
         res_basename_meas = os.path.join(dirpath, new_directory) ### defining the directory in which the displacement field were written
@@ -57,18 +57,18 @@ def minimization(position = 'Supine', noise_level = 0.1, parameters_to_identify 
         scale_supine = noise_level * Umeas_norm_supine ### scale depends on the noise level
         noise_supine = Umeas_supine.copy(deepcopy=True)
         noise_supine.vector()[:] = numpy.random.normal(loc=0.0, scale=scale_supine, size=Umeas_supine.vector().get_local().shape) ### creating random noise with null mean and standard deviation scale_supine, of the size of U_meas_supine
-        noise_norm_supine = (dolfin.assemble(dolfin.inner(noise_supine,noise_supine)*dVmeas_supine)/2/V_supine)**(1/2)
+        noise_norm_supine = (dolfin.assemble(dolfin.inner(noise_supine, noise_supine) * dVmeas_supine)/2/V_supine)**(1/2)
         Umeas_supine.vector()[:] += noise_supine.vector()[:] ### adding noise to displacement field
-        Umeas_supine_noise_norm =(dolfin.assemble(dolfin.inner(Umeas_supine, Umeas_supine)*dVmeas_supine)/2/V_supine)**(1/2) ### norm of the noisy displacement field
+        Umeas_supine_noise_norm = (dolfin.assemble(dolfin.inner(Umeas_supine, Umeas_supine) * dVmeas_supine)/2/V_supine)**(1/2) ### norm of the noisy displacement field
         ###### in prone position
         scale_prone = noise_level * Umeas_norm_prone
         noise_prone = Umeas_prone.copy(deepcopy=True)
-        noise_prone.vector()[:]=numpy.random.normal(loc=0.0, scale=scale_prone, size=Umeas_prone.vector().get_local().shape) ### creating random noise with null mean and standard deviation scale_prone, of the size of U_meas_prone
+        noise_prone.vector()[:] = numpy.random.normal(loc=0.0, scale=scale_prone, size=Umeas_prone.vector().get_local().shape) ### creating random noise with null mean and standard deviation scale_prone, of the size of U_meas_prone
         noise_norm_prone = (dolfin.assemble(dolfin.inner(noise_prone,noise_prone) * dVmeas_prone)/2/V_prone)**(1/2)
         Umeas_prone.vector()[:] += noise_prone.vector()[:] ### adding noise to displacement field
         Umeas_prone_noise_norm = (dolfin.assemble(dolfin.inner(Umeas_prone, Umeas_prone) * dVmeas_prone)/2/V_prone)**(1/2)
         ### starting minimization
-        sol = scipy.optimize.minimize(L_prone_and_supine, initialization, args=(Umeas_supine, Umeas_prone, noise_norm_supine, Umeas_supine_noise_norm, noise_norm_prone, Umeas_prone_noise_norm, noise_level, iteration, parameters_to_identify, dirpath, parameter_biased, V_prone, V_supine), options={'maxiter': 150, 'maxfev': 150, 'xatol': 5e-1}, method="Nelder-Mead")
+        sol = scipy.optimize.minimize(L_prone_and_supine, initialization, args=(Umeas_supine, Umeas_prone, noise_norm_supine, Umeas_supine_noise_norm, noise_norm_prone, Umeas_prone_noise_norm, noise_level, iteration, parameters_to_identify, dirpath, parameter_biased, V_prone, V_supine), options={'maxiter': 150, 'maxfev': 150, 'xatol': 5e-2}, method="Nelder-Mead")
     else:
         ### mesh information
         mesh = dolfin.Mesh()
@@ -96,7 +96,7 @@ def minimization(position = 'Supine', noise_level = 0.1, parameters_to_identify 
         Umeas.vector()[:] += noise.vector()[:] ### adding noise to the displacement field
         Umeas_noise_norm = (dolfin.assemble(dolfin.inner(Umeas, Umeas) * dVmeas)/2/V0)**(1/2)
         # print("Umeas_noise_norm", Umeas_noise_norm)
-        sol = scipy.optimize.minimize(L_prone_or_supine, initialization, args=(Umeas, V0, noise_norm, Umeas_noise_norm, noise_level, iteration, position, parameters_to_identify, dirpath, parameter_biased), options={'maxiter': 150, 'maxfev': 150,'xatol': 5e-1}, method="Nelder-Mead")
+        sol = scipy.optimize.minimize(L_prone_or_supine, initialization, args=(Umeas, V0, noise_norm, Umeas_noise_norm, noise_level, iteration, position, parameters_to_identify, dirpath, parameter_biased), options={'maxiter': 150, 'maxfev': 150,'xatol': 5e-2}, method="Nelder-Mead")
     if sol.success == True:
         for param in initialization:
             print(param)
@@ -118,31 +118,31 @@ def L_prone_or_supine(x, Umeas, V0, noise_norm, Umeas_noise_norm, noise_level, i
             parameters_to_identify_updated[key] = numpy.log(numpy.exp(x[j])) ### ensuring positivity of the parameter
             j += 1
         elif key == "alpha_fibrose_1":
-            parameters_to_identify_updated[key] =numpy.log(numpy.exp(x[j])) ### ensuring positivity of the parameter
+            parameters_to_identify_updated[key] = numpy.log(numpy.exp(x[j])) ### ensuring positivity of the parameter
             j += 1
         elif key == "alpha_fibrose_2":
-            parameters_to_identify_updated[key] =numpy.log(numpy.exp(x[j])) ### ensuring positivity of the parameter
+            parameters_to_identify_updated[key] = numpy.log(numpy.exp(x[j])) ### ensuring positivity of the parameter
             j += 1
         elif key == "alpha_fibrose_3":
-            parameters_to_identify_updated[key] =numpy.log(numpy.exp(x[j])) ### ensuring positivity of the parameter
+            parameters_to_identify_updated[key] = numpy.log(numpy.exp(x[j])) ### ensuring positivity of the parameter
             j += 1
         elif key == "alpha_healthy":
-            parameters_to_identify_updated[key] =numpy.log(numpy.exp(x[j])) ### ensuring positivity of the parameter
+            parameters_to_identify_updated[key] = numpy.log(numpy.exp(x[j])) ### ensuring positivity of the parameter
             j += 1
         elif key == "gamma":
-            parameters_to_identify_updated[key] =numpy.log(numpy.exp(x[j])) ### ensuring positivity of the parameter
+            parameters_to_identify_updated[key] = numpy.log(numpy.exp(x[j])) ### ensuring positivity of the parameter
             j += 1
         elif key == "c1":
-            parameters_to_identify_updated[key] =numpy.log(numpy.exp(x[j])) ### ensuring positivity of the parameter
+            parameters_to_identify_updated[key] = numpy.log(numpy.exp(x[j])) ### ensuring positivity of the parameter
             j += 1
         elif key == "c2":
-            parameters_to_identify_updated[key] =numpy.log(numpy.exp(x[j])) ### ensuring positivity of the parameter
+            parameters_to_identify_updated[key] = numpy.log(numpy.exp(x[j])) ### ensuring positivity of the parameter
             j += 1
         elif key == "pe":
-            parameters_to_identify_updated[key] = - numpy.log(numpy.exp(x[j])) ### ensuring negativity of the parameter
+            parameters_to_identify_updated[key] = - numpy.log(numpy.exp(abs(x[j]))) ### ensuring negativity of the parameter
             j += 1
         elif key == "pi":
-            parameters_to_identify_updated[key] = - numpy.log(numpy.exp(x[j])) ### ensuring negativity of the parameter
+            parameters_to_identify_updated[key] = - numpy.log(numpy.exp(abs(x[j]))) ### ensuring negativity of the parameter
             j +=1
     if parameter_biased != None:
         for key, value in parameter_biased.items():
@@ -174,25 +174,25 @@ def L_prone_and_supine(x, Umeas_supine, Umeas_prone, noise_norm_supine, Umeas_su
             parameters_to_identify_updated[key] = numpy.log(numpy.exp(x[j])) ### ensuring positivity of the parameter
             j += 1
         elif key == "alpha_fibrose_1":
-            parameters_to_identify_updated[key] =numpy.log(numpy.exp(x[j])) ### ensuring positivity of the parameter
+            parameters_to_identify_updated[key] = numpy.log(numpy.exp(x[j])) ### ensuring positivity of the parameter
             j += 1
         elif key == "alpha_fibrose_2":
-            parameters_to_identify_updated[key] =numpy.log(numpy.exp(x[j])) ### ensuring positivity of the parameter
+            parameters_to_identify_updated[key] = numpy.log(numpy.exp(x[j])) ### ensuring positivity of the parameter
             j += 1
         elif key == "alpha_fibrose_3":
-            parameters_to_identify_updated[key] =numpy.log(numpy.exp(x[j])) ### ensuring positivity of the parameter
+            parameters_to_identify_updated[key] = numpy.log(numpy.exp(x[j])) ### ensuring positivity of the parameter
             j += 1
         elif key == "alpha_healthy":
-            parameters_to_identify_updated[key] =numpy.log(numpy.exp(x[j])) ### ensuring positivity of the parameter
+            parameters_to_identify_updated[key] = numpy.log(numpy.exp(x[j])) ### ensuring positivity of the parameter
             j += 1
         elif key == "gamma":
-            parameters_to_identify_updated[key] =numpy.log(numpy.exp(x[j])) ### ensuring positivity of the parameter
+            parameters_to_identify_updated[key] = numpy.log(numpy.exp(x[j])) ### ensuring positivity of the parameter
             j += 1
         elif key == "c1":
-            parameters_to_identify_updated[key] =numpy.log(numpy.exp(x[j])) ### ensuring positivity of the parameter
+            parameters_to_identify_updated[key] = numpy.log(numpy.exp(x[j])) ### ensuring positivity of the parameter
             j += 1
         elif key == "c2":
-            parameters_to_identify_updated[key] =numpy.log(numpy.exp(x[j])) ### ensuring positivity of the parameter
+            parameters_to_identify_updated[key] = numpy.log(numpy.exp(x[j])) ### ensuring positivity of the parameter
             j += 1
         elif key == "pe":
             parameters_to_identify_updated[key] = - numpy.log(numpy.exp(abs(x[j]))) ### ensuring negativity of the parameter
@@ -216,7 +216,7 @@ def L_prone_and_supine(x, Umeas_supine, Umeas_prone, noise_norm_supine, Umeas_su
         U_err_supine.vector()[:] -= Umeas_supine.vector()[:]
         L = (dolfin.assemble(dolfin.inner(U_err_supine,U_err_supine) * dV_supine)/2/V_supine)**(1/2)/normalization_supine ### cost function
         ### computing displacement field in prone position
-        U_prone, dV_prone = compute_disp.compute_disp(position = 'Supine', parameters_to_identify = parameters_to_identify_updated, noise = noise_level, dirpath = dirpath, iteration = iteration) ### compute the displacement field from end-exhalation to end-inhalation with the parameter values of the current iteration
+        U_prone, dV_prone = compute_disp.compute_disp(position = 'Prone', parameters_to_identify = parameters_to_identify_updated, noise = noise_level, dirpath = dirpath, iteration = iteration) ### compute the displacement field from end-exhalation to end-inhalation with the parameter values of the current iteration
         U_err_prone = U_prone.copy(deepcopy = True)
         U_err_prone.vector()[:] -= Umeas_prone.vector()[:]
         L += (dolfin.assemble(dolfin.inner(U_err_prone, U_err_prone) * dV_prone)/2/V_prone)**(1/2)/normalization_prone ### adding second term to cost function
