@@ -169,11 +169,11 @@ def compute_disp(position = None, parameters_to_identify = {}, noise = None, dir
     new_directory = os.path.join(dirpath, res_basename)
     if str(position) == "Prone": ### defining parameters depending on the position
         coef = -1.
-        cube_params = {"path_and_mesh_name": dirpath + "/prone/Zygoteprone.xdmf"}
+        cube_params = {"path_and_mesh_name": dirpath + "/prone/cubeprone.xdmf"}
         porosity_params_unloading={"type": "from_file", "val": dirpath + "/prone/prone-poro.xml"}
     elif str(position) == "Supine":
         coef = +1.
-        cube_params = {"path_and_mesh_name": dirpath + "/supine/Zygotesupine.xdmf"}
+        cube_params = {"path_and_mesh_name": dirpath + "/supine/cubesupine.xdmf"}
         porosity_params_unloading={"type": "from_file", "val": dirpath + "/supine/supine-poro.xml"}
     else:
         print("Warning, there is a problem: gravity should be Prone or Supine... aborting...")
