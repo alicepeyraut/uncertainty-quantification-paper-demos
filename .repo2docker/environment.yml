@@ -34,5 +34,6 @@ dependencies:
   # pip for additional packages
   - pip=23.1
   - pip:
-    -  dolfin_mech==2024.10.17 numpy==1.24
+    - dolfin_mech==2024.10.17 
+    - numpy==1.24
    
