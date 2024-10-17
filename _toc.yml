@@ -4,5 +4,5 @@
 format: jb-book
 root: index
 chapters:
-- file: demos/Figures6-7-8modelerrors
-- file: demos/Figures4to11measurementerrors
+- file: demos/Figures6-to-8-model-errors
+- file: demos/Figures4-to-11-measurement-errors
