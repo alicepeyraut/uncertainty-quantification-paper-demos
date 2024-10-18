@@ -63,7 +63,7 @@ def initialize_directories(current_directory):
     return(directory_prone, directory_supine)
 
 
-def initialize_lsts_and_params(parameters_to_identify, noise_or_bias_lst):
+def initialize_lsts_and_params(parameters_to_identify, noise_or_bias_lst, noise_or_bias):
     nb_parameters = len(parameters_to_identify)
     reference_value = []
     param_names = []
@@ -74,7 +74,10 @@ def initialize_lsts_and_params(parameters_to_identify, noise_or_bias_lst):
     results = {} ### storing the results of the estimation, for each noise level
     storing_values_for_convergence_check = {} ### storing the results for convergence checks
     ### initializing lists in results dict
-    results['noise'] = []
+    if str(noise_or_bias) == 'noise':
+        results['noise'] = []
+    else:
+        results['bias'] = []
     for param_name in param_names:
         lst_name = "ini_"+str(param_name)
         results[lst_name] = []
